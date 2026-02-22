@@ -1,33 +1,25 @@
-import { useState, useRef, useEffect } from "react";
-import { Send, Smile, Paperclip, MoreVertical, Phone, Video } from "lucide-react";
+import { useRef, useEffect } from "react";
+import { MessageSquare } from "lucide-react";
 import { Chat, Message } from "@/data/chatData";
 
 interface ChatWindowProps {
   chat: Chat | null;
   messages: Message[];
-  onSendMessage: (text: string) => void;
 }
 
-const ChatWindow = ({ chat, messages, onSendMessage }: ChatWindowProps) => {
-  const [input, setInput] = useState("");
+const ChatWindow = ({ chat, messages }: ChatWindowProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    onSendMessage(input.trim());
-    setInput("");
-  };
-
   if (!chat) {
     return (
       <div className="flex-1 flex items-center justify-center bg-chat-bg">
         <div className="text-center">
           <div className="w-64 h-64 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-            <Send className="w-20 h-20 text-primary/30" />
+            <MessageSquare className="w-20 h-20 text-primary/30" />
           </div>
           <h2 className="text-2xl font-light text-muted-foreground">WhatsApp Web</h2>
           <p className="text-sm text-muted-foreground mt-2">Select a chat to start messaging</p>
@@ -39,7 +31,7 @@ const ChatWindow = ({ chat, messages, onSendMessage }: ChatWindowProps) => {
   return (
     <div className="flex-1 flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-chat-header">
+      <div className="flex items-center px-4 py-2.5 bg-chat-header">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center text-sm font-semibold text-primary-foreground">
@@ -55,11 +47,6 @@ const ChatWindow = ({ chat, messages, onSendMessage }: ChatWindowProps) => {
               {chat.online ? "online" : "last seen recently"}
             </p>
           </div>
-        </div>
-        <div className="flex items-center gap-4 text-primary-foreground/80">
-          <Video className="w-5 h-5 cursor-pointer hover:text-primary-foreground transition-colors" />
-          <Phone className="w-5 h-5 cursor-pointer hover:text-primary-foreground transition-colors" />
-          <MoreVertical className="w-5 h-5 cursor-pointer hover:text-primary-foreground transition-colors" />
         </div>
       </div>
 
@@ -90,26 +77,6 @@ const ChatWindow = ({ chat, messages, onSendMessage }: ChatWindowProps) => {
           </div>
         ))}
         <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className="flex items-center gap-2 px-4 py-3 bg-chat-sidebar border-t border-border">
-        <Smile className="w-6 h-6 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
-        <Paperclip className="w-6 h-6 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
-        <input
-          type="text"
-          placeholder="Type a message"
-          className="flex-1 bg-chat-search rounded-lg px-4 py-2.5 text-sm outline-none text-foreground placeholder:text-muted-foreground"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-        />
-        <button
-          onClick={handleSend}
-          className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground hover:bg-secondary transition-colors"
-        >
-          <Send className="w-5 h-5" />
-        </button>
       </div>
     </div>
   );
