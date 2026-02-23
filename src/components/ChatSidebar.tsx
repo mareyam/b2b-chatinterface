@@ -1,4 +1,9 @@
-import { Search } from "lucide-react";
+// denise : aKRJANFuRVKXTgQP63giaw
+// PS: xcUauzdUQ8SPhqf7kwUH9w
+// Shabir : kNeTbjC0T9u0M8I8geOFdQ
+
+import { Search, ChevronDown, Check } from "lucide-react";
+import { useState } from "react";
 import { Chat } from "@/data/chatData";
 
 interface ChatSidebarProps {
@@ -7,6 +12,9 @@ interface ChatSidebarProps {
   onSelectChat: (id: string) => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  selectedUser: string; // 🔥 FROM INDEX
+  onUserChange: (user: any) => void; // 🔥 FROM INDEX
+  users: string[];
 }
 
 const ChatSidebar = ({
@@ -15,29 +23,65 @@ const ChatSidebar = ({
   onSelectChat,
   searchQuery,
   onSearchChange,
+  selectedUser,
+  onUserChange,
+  users,
 }: ChatSidebarProps) => {
+  console.log(selectedUser);
+  console.log("selectedUser");
+
+  const [open, setOpen] = useState(false);
+
   const filtered = chats.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
-    const mm = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
     const dd = String(date.getDate()).padStart(2, "0");
     const yyyy = date.getFullYear();
     const hh = String(date.getHours()).padStart(2, "0");
     const min = String(date.getMinutes()).padStart(2, "0");
-
     return `${mm}-${dd}-${yyyy} ${hh}:${min}`;
   };
 
   return (
     <div className="flex flex-col h-full bg-chat-sidebar border-r border-border">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-chat-header">
-        <h1 className="text-lg font-semibold text-primary-foreground tracking-tight">
-          Chats
-        </h1>
+      <div className="relative px-4 py-3 bg-chat-header">
+        {/* Custom Dropdown */}
+        <div
+          onClick={() => setOpen(!open)}
+          className="flex items-center justify-between bg-chat-search hover:bg-chat-sidebar-hover px-3 py-2 rounded-lg cursor-pointer transition"
+        >
+          <span className="text-sm font-medium text-foreground">
+            {selectedUser}
+          </span>
+          <ChevronDown
+            className={`w-4 h-4 transition ${open ? "rotate-180" : ""}`}
+          />
+        </div>
+
+        {open && (
+          <div className="absolute left-4 right-4 mt-2 bg-chat-sidebar border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+            {users.map((user) => (
+              <div
+                key={user}
+                onClick={() => {
+                  onUserChange(user);
+                  setOpen(false);
+                }}
+                className="flex items-center justify-between px-3 py-2 text-sm hover:bg-chat-sidebar-hover cursor-pointer transition"
+              >
+                {user}
+                {selectedUser === user && (
+                  <Check className="w-4 h-4 text-primary" />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Search */}
@@ -66,30 +110,22 @@ const ChatSidebar = ({
                 : "hover:bg-chat-sidebar-hover"
             }`}
           >
-            {/* Avatar */}
-            <div className="relative flex-shrink-0">
-              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary">
-                {chat.avatar}
-              </div>
+            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary">
+              {chat.avatar}
             </div>
 
-            {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
                 <span className="font-medium text-sm truncate">
                   {chat.name}
                 </span>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-chat-timestamp flex-shrink-0">
-                    {formatTimestamp(chat.timestamp)}
-                  </span>
-                </div>
+                <span className="text-xs text-chat-timestamp flex-shrink-0">
+                  {formatTimestamp(chat.timestamp)}
+                </span>
               </div>
-              <div className="flex items-center justify-between mt-0.5">
-                <p className="text-sm text-muted-foreground truncate">
-                  {chat.lastMessage}
-                </p>
-              </div>
+              <p className="text-sm text-muted-foreground truncate mt-0.5">
+                {chat.lastMessage}
+              </p>
             </div>
           </div>
         ))}
